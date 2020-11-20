@@ -1,0 +1,6 @@
+framework module Pods_DSBridgeTest {
+  umbrella header "Pods-DSBridgeTest-umbrella.h"
+
+  export *
+  module * { export * }
+}

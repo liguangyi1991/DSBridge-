@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        .box1 {
+            width: 100px;
+            height: 100px;
+            background-color: yellow
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/dsbridge@3.1.4/dist/dsbridge.js"> </script>
+    <script>
+        window.onload = function () {
+            var button1 = document.getElementById("test1");
+            var button2 = document.getElementById("test2");
+            var button3 = document.getElementById("test3");
+            var button4 = document.getElementById("test4");
+
+
+            button1.onclick = function () {
+                //同步调用
+                var str = bridge.call("testSyn", "testSyn");
+            }
+            button2.onclick = function () {
+                //异步调用
+                bridge.call("testAsyn", "testAsyn", function (v) {
+                    alert(v);
+                })
+            }
+            button3.onclick = function () {
+                bridge.call("callProgress", function (value) {
+                    document.getElementById("progress").innerText = value
+                })
+            }
+            // 通过命名空间来调用
+            button4.onclick = function () {
+                var ret = dsBridge.call("echo.syn", {
+                    msg: " I am echoSyn call",
+                    tag: 1
+                })
+                alert(JSON.stringify(ret))
+                // call echo.asyn
+                dsBridge.call("echo.asyn", {
+                    msg: " I am echoAsyn call",
+                    tag: 2
+                }, function (ret) {
+                    alert(JSON.stringify(ret));
+                })
+            }
+            //注册 javascript API 
+            bridge.register('addValue', function (l, r) {
+                return l + r;
+            })
+
+
+            //namespace test for synchronous
+            dsBridge.register("test", {
+                tag: "test",
+                test1: function () {
+                    return this.tag + "1"
+                },
+                test2: function () {
+                    return this.tag + "2"
+                }
+            })
+
+            //namespace test1 for asynchronous calls  
+            dsBridge.registerAsyn("test1", {
+                tag: "test1",
+                test1: function (responseCallback) {
+                    return responseCallback(this.tag + "1")
+                },
+                test2: function (responseCallback) {
+                    return responseCallback(this.tag + "2")
+                }
+            })
+        }
+    </script>
+</head>
+
+<body>
+    <button id="test1">同步调用原生方法</button>
+    <button id="test2">异步调用原生方法</button>
+    <button id="test3"">进度回调按钮</button>
+    <button id="test4"">通过命名空间调用</button>
+
+    <div id="progress">进度</div>
+</body>
+
+</html>
